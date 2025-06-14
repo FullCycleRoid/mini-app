@@ -7,6 +7,11 @@ export const useTelegramAuth = () => {
 
     useEffect(() => {
         console.log(initData, "Init Data 123")
+        console.log(window.Telegram?.WebApp, 'window.Telegram?.WebApp')
+
+        const authData = window.Telegram.WebApp.initData;
+        console.log('Получены данные авторизации:', authData);
+
         const checkAuth = async () => {
             try {
                 await init(); // Инициализируем SDK

@@ -9,9 +9,9 @@ export const AuthScreen = ({ onAuthorize }) => {
             console.log('Получены данные авторизации:', authData);
 
             // После получения данных вызываем обратный вызов
-            setTimeout(() => {
-                onAuthorize();
-            }, 1000);
+            // setTimeout(() => {
+            //     onAuthorize();
+            // }, 1000);
         }
     };
 
