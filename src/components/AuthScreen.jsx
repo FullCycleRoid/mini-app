@@ -2,6 +2,7 @@ import React from 'react';
 
 export const AuthScreen = ({ onAuthorize }) => {
     const handleAuth = () => {
+        console.log(window.Telegram?.WebApp, 'window.Telegram?.WebApp')
         if (window.Telegram?.WebApp) {
             // Получаем данные из Telegram
             const authData = window.Telegram.WebApp.initData;
