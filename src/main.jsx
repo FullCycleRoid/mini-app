@@ -15,6 +15,11 @@ const initializeTelegramSDK = async () => {
             console.log('Mini App готово');
         }
 
+        if (miniApp.mount.isAvailable()) {
+            await miniApp.mount();
+            console.log('miniApp смонтировано');
+        }
+
         // Монтируем главную кнопку
         if (mainButton.mount.isAvailable()) {
             mainButton.mount(); // Убедимся, что кнопка установлена
