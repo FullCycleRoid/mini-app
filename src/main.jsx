@@ -1,68 +1,51 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
+import React from 'react';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import './index.css';
+import { App } from './App.jsx';
 
-import { init, miniApp, mainButton, shareURL } from '@telegram-apps/sdk';
-
+// Инициализация Telegram SDK
+import { init, miniApp, mainButton } from '@telegram-apps/sdk';
 
 const initializeTelegramSDK = async () => {
     try {
         await init();
 
+        // Готовность приложения
         if (miniApp.ready.isAvailable()) {
             await miniApp.ready();
             console.log('Mini App готово');
         }
 
-        if (miniApp.mount.isAvailable()) {
-            await miniApp.mount();
-            console.log('miniApp смонтировано');
-        }
-
-        // Монтируем главную кнопку
+        // Настройка главной кнопки
         if (mainButton.mount.isAvailable()) {
-            mainButton.mount(); // Убедимся, что кнопка установлена
-            console.log('Главная кнопка установлена');
-        }
-
-        miniApp.setHeaderColor('#54d923');
-
-        // Настраиваем свойства главной кнопки
-        if (mainButton.setParams.isAvailable()) {
+            mainButton.mount();
             mainButton.setParams({
-                backgroundColor: '#aa1388', // Цвет кнопки
-                isEnabled: true, // Кнопка активна
-                isVisible: true, // Кнопка видима
-                text: 'Поделиться очками', // Текст на кнопке
-                textColor: '#000000', // Цвет текста
+                backgroundColor: '#aa1388',
+                isEnabled: true,
+                isVisible: true,
+                text: 'Поделиться очками',
+                textColor: '#000000',
             });
-            console.log('Свойства главной кнопки настроены');
+
+            mainButton.on('click', () => {
+                const score = localStorage.getItem('memory-game-score') || 0;
+                shareURL(`Посмотрите! У меня ${score} очков в игре!`);
+            });
         }
 
-        // Добавляем слушатель кликов на кнопку
-        if (mainButton.onClick.isAvailable()) {
-            mainButton.on('click', () => {
-                try {
-                    // Получение текущих очков из localStorage
-                    const score = localStorage.getItem('memory-game-score') || 0;
-                    shareURL(`Посмотрите! У меня ${score} очков в игре!`);
-                    console.log('Окно выбора чата открыто для отправки сообщения.');
-                } catch (error) {
-                    console.error('Ошибка при открытии окна выбора чата:', error);
-                }
-            });
-        }
+        // Цвет заголовка
+        miniApp.setHeaderColor('#54d923');
     } catch (error) {
-        console.error('Ошибка инициализации:', error);
+        console.error('Ошибка инициализации Telegram SDK:', error);
     }
 };
 
 initializeTelegramSDK();
 
-
+// Рендеринг приложения
 createRoot(document.getElementById('root')).render(
     <StrictMode>
         <App />
-    </StrictMode>,
-)
+    </StrictMode>
+);
