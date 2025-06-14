@@ -39,6 +39,8 @@ export const useTelegramAuth = () => {
 
 // Заглушка для валидации подписи (реализуйте на бэкенде)
 const validateInitData = async (rawInitData) => {
+    console.log(rawInitData, "rawInitData 777")
+
     // TODO: Отправьте rawInitData на сервер для проверки
     // Возвращайте true, если подпись валидна
     return true;
