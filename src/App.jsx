@@ -14,36 +14,43 @@ const generateDeck = () => {
     return deck.sort(() => Math.random() - 0.5);
 };
 
+const loadInitialScore = () => {
+    const savedScore = localStorage.getItem('memory-game-score');
+    return savedScore ? parseInt(savedScore, 10) : 0;
+};
 
 const initialState = {
     deck: generateDeck(),
     flipped: [],
     matched: [],
     turns: 0,
-    score: 0,
+    score: loadInitialScore(),
     pendingReset: false,
     gameOver: false,
 };
 
 
 const gameReducer = (state, action) => {
+    console.log(state)
     switch (action.type) {
         case 'FLIP_CARD':
             // Переворачиваем карточку
+            console.log(action, "erfgregeg")
             if (state.flipped.length < 2 && !state.flipped.includes(action.index) && !state.matched.includes(state.deck[action.index].color)) {
                 return { ...state, flipped: [...state.flipped, action.index] };
             }
             return state;
         case 'CHECK_MATCH':
-            // Проверяем совпадение перевернутых карточек
             const [first, second] = state.flipped;
             if (state.deck[first].color === state.deck[second].color) {
                 const newMatched = [...state.matched, state.deck[first].color];
+                const newScore = state.score + 1; // Увеличиваем счёт на 1
                 const isGameOver = newMatched.length === state.deck.length / 2;
+
                 return {
                     ...state,
                     matched: newMatched,
-                    score: isGameOver ? state.score + 1 : state.score,
+                    score: newScore,
                     flipped: [],
                     pendingReset: false,
                     gameOver: isGameOver,
@@ -92,6 +99,9 @@ const App = () => {
         }
     }, [state.pendingReset]);
 
+    useEffect(() => {
+        localStorage.setItem('memory-game-score', state.score);
+    }, [state.score]);
 
     // Обработка клика на карточку
     const handleCardClick = (index) => {

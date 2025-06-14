@@ -15,11 +15,6 @@ const initializeTelegramSDK = async () => {
             console.log('Mini App готово');
         }
 
-        if (!window.Telegram || !Telegram.WebApp.initData) {
-            console.warn('Приложение запущено не через Telegram');
-            return;
-        }
-
         // Монтируем главную кнопку
         if (mainButton.mount.isAvailable()) {
             mainButton.mount(); // Убедимся, что кнопка установлена
