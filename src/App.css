@@ -137,18 +137,119 @@ body {
 }
 
 .player-info {
-  background-color: #f0f0f0;
-  padding: 10px;
-  border-radius: 5px;
-  margin: 10px 0;
+  background-color: #0f0f1f;
+  padding: 12px;
+  border-radius: 0;
+  margin: 20px 0;
   width: 100%;
   box-sizing: border-box;
   text-align: center;
+  border: 4px dashed #ff00ff;
+  box-shadow:
+          0 0 10px #00ffff,
+          inset 0 0 10px #00ffff;
+  animation:
+          colorPulse 2s infinite alternate,
+          borderGlitch 3s infinite;
+  font-family: 'Courier New', monospace;
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0); /* Аппаратное ускорение */
+}
+
+.player-info::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  background: linear-gradient(
+          45deg,
+          transparent 45%,
+          #ff00ff 45%,
+          #ff00ff 55%,
+          transparent 55%
+  );
+  transform: rotate(45deg);
+  animation: scan 3s linear infinite;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.player-info::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+          repeating-linear-gradient(
+                  0deg,
+                  rgba(0, 255, 255, 0.1),
+                  rgba(0, 255, 255, 0.1) 1px,
+                  transparent 1px,
+                  transparent 2px
+          );
+  pointer-events: none;
+  animation: noise 0.5s infinite;
 }
 
 .player-info p {
-  margin: 5px 0;
-  font-size: 14px;
+  margin: 8px 0;
+  font-size: 16px;
+  color: #00ffff;
+  text-shadow:
+          0 0 5px #ff00ff,
+          0 0 10px #ff00ff;
+  font-weight: bold;
+  letter-spacing: 1px;
+  position: relative;
+  z-index: 1;
+  animation: textGlitch 5s infinite;
+}
+
+/* Анимации */
+@keyframes colorPulse {
+  0% { border-color: #ff00ff; }
+  33% { border-color: #00ffff; }
+  66% { border-color: #ffff00; }
+  100% { border-color: #ff00ff; }
+}
+
+@keyframes scan {
+  from { transform: translateY(-100%) rotate(45deg); }
+  to { transform: translateY(100%) rotate(45deg); }
+}
+
+@keyframes borderGlitch {
+  0%, 100% { border-width: 4px; }
+  50% { border-width: 8px; }
+}
+
+@keyframes textGlitch {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+@keyframes noise {
+  0% { background-position: 0 0; }
+  100% { background-position: 100% 100%; }
+}
+
+/* Добавляем мерцание как в старых ЭЛТ-экранах */
+@keyframes crtFlicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.9; }
+}
+
+.player-info {
+  animation:
+          colorPulse 2s infinite alternate,
+          borderGlitch 3s infinite,
+          crtFlicker 5s infinite;
 }
 
 button {
