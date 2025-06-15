@@ -19,3 +19,15 @@ h1 {
   margin-bottom: 5px;
   color: #333;
 }
+
+.player-info {
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-radius: 5px;
+  margin: 10px 0;
+}
+
+.player-info p {
+  margin: 5px 0;
+  font-size: 14px;
+}

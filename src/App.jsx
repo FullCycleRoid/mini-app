@@ -1,16 +1,13 @@
 import React, { useReducer, useEffect } from 'react';
 import './App.css';
 
-
 const generateDeck = () => {
     const colors = ['#FF6347', '#4682B4', '#32CD32', '#FFD700', '#FF69B4', '#8A2BE2'];
     const deck = [];
-    // Каждому цвету добавляем две карточки
     for (let color of colors) {
         deck.push({ color, matched: false });
         deck.push({ color, matched: false });
     }
-    // Перемешиваем колоду
     return deck.sort(() => Math.random() - 0.5);
 };
 
@@ -27,24 +24,24 @@ const initialState = {
     score: loadInitialScore(),
     pendingReset: false,
     gameOver: false,
+    player: null
 };
 
-
 const gameReducer = (state, action) => {
-    console.log(state)
     switch (action.type) {
         case 'FLIP_CARD':
-            // Переворачиваем карточку
-            console.log(action, "erfgregeg")
-            if (state.flipped.length < 2 && !state.flipped.includes(action.index) && !state.matched.includes(state.deck[action.index].color)) {
+            if (state.flipped.length < 2 &&
+                !state.flipped.includes(action.index) &&
+                !state.matched.includes(state.deck[action.index].color)) {
                 return { ...state, flipped: [...state.flipped, action.index] };
             }
             return state;
+
         case 'CHECK_MATCH':
             const [first, second] = state.flipped;
             if (state.deck[first].color === state.deck[second].color) {
                 const newMatched = [...state.matched, state.deck[first].color];
-                const newScore = state.score + 1; // Увеличиваем счёт на 1
+                const newScore = state.score + 1;
                 const isGameOver = newMatched.length === state.deck.length / 2;
 
                 return {
@@ -58,38 +55,53 @@ const gameReducer = (state, action) => {
             } else {
                 return { ...state, pendingReset: true };
             }
+
         case 'RESET_FLIPPED':
-            // Сбрасываем перевернутые карточки
             return { ...state, flipped: [], pendingReset: false };
+
         case 'INCREMENT_TURN':
-            // Увеличиваем счетчик попыток
             return { ...state, turns: state.turns + 1 };
+
         case 'RESET_GAME':
-            // Сбрасываем состояние игры
             return {
                 ...initialState,
                 deck: generateDeck(),
+                player: state.player
             };
+
+        case 'SET_PLAYER':
+            return { ...state, player: action.player };
+
         default:
             return state;
     }
 };
 
-
 const App = () => {
     const [state, dispatch] = useReducer(gameReducer, initialState);
 
     useEffect(() => {
-        console.log(window.Telegram, "window.Telegram window.Telegram 123")
         if (window.Telegram?.WebApp) {
-            const tgWebApp = window.Telegram.WebApp;
-            tgWebApp.ready();
-            tgWebApp.expand();
+            const webApp = window.Telegram.WebApp;
+            console.log("Telegram WebApp detected:", webApp);
 
-            const user = tgWebApp.initDataUnsafe?.user;
+            // Проверка данных пользователя
+            const user = webApp.initDataUnsafe?.user;
+            console.log("User data:", user);
 
-            console.log(tgWebApp.initDataUnsafe, "tgWebApp.initDataUnsafe 123")
-            console.log(tgWebApp.initDataUnsafe.user, "tgWebApp.initDataUnsafe.user 123")
+            // Проверка параметров запуска
+            console.log("Launch params:", webApp.initData);
+        } else {
+            console.warn("Not in Telegram WebApp. Running in browser mode.");
+        }
+    }, []);
+
+    // Инициализация Telegram WebApp
+    useEffect(() => {
+        if (window.Telegram?.WebApp) {
+            const webApp = window.Telegram.WebApp;
+            const user = webApp.initDataUnsafe?.user;
+
             if (user) {
                 dispatch({
                     type: 'SET_PLAYER',
@@ -100,7 +112,6 @@ const App = () => {
                     }
                 });
 
-                // Сохраняем в localStorage
                 localStorage.setItem('tgPlayer', JSON.stringify({
                     id: user.id,
                     username: user.username || `user_${user.id}`
@@ -109,7 +120,7 @@ const App = () => {
         }
     }, []);
 
-    // Проверка на совпадение перевернутых карточек
+    // Проверка совпадений
     useEffect(() => {
         if (state.flipped.length === 2) {
             dispatch({ type: 'CHECK_MATCH' });
@@ -117,8 +128,7 @@ const App = () => {
         }
     }, [state.flipped]);
 
-
-    // Таймер для сброса перевернутых карточек
+    // Таймер для сброса карточек
     useEffect(() => {
         if (state.pendingReset) {
             const timer = setTimeout(() => {
@@ -128,30 +138,37 @@ const App = () => {
         }
     }, [state.pendingReset]);
 
+    // Сохранение счета
     useEffect(() => {
         localStorage.setItem('memory-game-score', state.score);
     }, [state.score]);
 
-    // Обработка клика на карточку
     const handleCardClick = (index) => {
         if (!state.gameOver && state.flipped.length < 2 && !state.flipped.includes(index)) {
             dispatch({ type: 'FLIP_CARD', index });
         }
     };
 
-
     const handlePlayAgain = () => {
         dispatch({ type: 'RESET_GAME' });
     };
 
-
     return (
         <div className="App">
             <h1>Memory Game</h1>
+
+            {state.player && (
+                <div className="player-info">
+                    <p>Игрок: {state.player.name}</p>
+                    {state.player.username && <p>@{state.player.username}</p>}
+                </div>
+            )}
+
             <div className="info">
                 <p>Очки: {state.score}</p>
                 <p>Попытки: {state.turns}/15</p>
             </div>
+
             <div className="deck">
                 {state.deck.map((card, index) => (
                     <div
@@ -162,6 +179,7 @@ const App = () => {
                     />
                 ))}
             </div>
+
             {state.gameOver && (
                 <>
                     <div className="overlay" />
@@ -171,6 +189,7 @@ const App = () => {
                     </div>
                 </>
             )}
+
             {!state.gameOver && state.turns >= 15 && (
                 <>
                     <div className="overlay" />
@@ -183,6 +202,5 @@ const App = () => {
         </div>
     );
 };
-
 
 export default App;

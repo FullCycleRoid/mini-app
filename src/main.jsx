@@ -1,47 +1,49 @@
-import React from 'react';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-import { App } from './App.jsx';
+import App from './App.jsx';
 
-// Инициализация Telegram SDK
-import { init, miniApp, mainButton } from '@telegram-apps/sdk';
+// Инициализация Telegram WebApp
+const initTelegramWebApp = () => {
+    if (window.Telegram?.WebApp) {
+        try {
+            const webApp = window.Telegram.WebApp;
 
-const initializeTelegramSDK = async () => {
-    try {
-        await init();
+            // Инициализация
+            webApp.ready();
+            webApp.expand();
 
-        // Готовность приложения
-        if (miniApp.ready.isAvailable()) {
-            await miniApp.ready();
-            console.log('Mini App готово');
-        }
+            // Настройка главной кнопки
+            webApp.MainButton.text = 'Поделиться очками';
+            webApp.MainButton.color = '#aa1388';
+            webApp.MainButton.textColor = '#000000';
+            webApp.MainButton.show();
 
-        // Настройка главной кнопки
-        if (mainButton.mount.isAvailable()) {
-            mainButton.mount();
-            mainButton.setParams({
-                backgroundColor: '#aa1388',
-                isEnabled: true,
-                isVisible: true,
-                text: 'Поделиться очками',
-                textColor: '#000000',
-            });
-
-            mainButton.on('click', () => {
+            // Обработчик клика на кнопку
+            webApp.MainButton.onClick(() => {
                 const score = localStorage.getItem('memory-game-score') || 0;
-                shareURL(`Посмотрите! У меня ${score} очков в игре!`);
-            });
-        }
+                const user = webApp.initDataUnsafe?.user;
+                const username = user?.username ? `@${user.username}` : 'Я';
 
-        // Цвет заголовка
-        miniApp.setHeaderColor('#54d923');
-    } catch (error) {
-        console.error('Ошибка инициализации Telegram SDK:', error);
+                webApp.showSharePopup(`${username} набрал ${score} очков в Memory Game!`);
+            });
+
+            // Цвет заголовка
+            webApp.setHeaderColor('#54d923');
+
+            console.log('Telegram WebApp инициализирован');
+            return true;
+        } catch (error) {
+            console.error('Ошибка инициализации Telegram WebApp:', error);
+        }
     }
+    return false;
 };
 
-initializeTelegramSDK();
+// Пытаемся инициализировать Telegram WebApp
+if (!initTelegramWebApp()) {
+    console.warn('Приложение запущено вне Telegram. Функции Telegram недоступны.');
+}
 
 // Рендеринг приложения
 createRoot(document.getElementById('root')).render(
