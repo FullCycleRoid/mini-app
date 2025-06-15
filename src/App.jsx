@@ -55,8 +55,9 @@ const gameReducer = (state, action) => {
             const secondCard = state.deck[second];
 
             if (firstCard.symbol === secondCard.symbol) {
+                console.log(state.score, "state.score state.score 123")
                 const newMatched = [...state.matched, firstCard.symbol];
-                const newScore = state.score + 100;
+                const newScore = state.score + 1;
                 const isGameOver = newMatched.length === cardSymbols.length;
 
                 return {
