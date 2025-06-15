@@ -88,7 +88,6 @@ const App = () => {
 
             const user = tgWebApp.initDataUnsafe?.user;
 
-
             console.log(tgWebApp.initDataUnsafe, "tgWebApp.initDataUnsafe 123")
             console.log(tgWebApp.initDataUnsafe.user, "tgWebApp.initDataUnsafe.user 123")
             if (user) {
