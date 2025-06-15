@@ -30,19 +30,22 @@ const initialState = {
 const gameReducer = (state, action) => {
     switch (action.type) {
         case 'FLIP_CARD':
-            if (state.flipped.length < 2 &&
-                !state.flipped.includes(action.index) &&
-                !state.matched.includes(state.deck[action.index].color)) {
+            console.log(action.type, "TYPE action")
+            if (state.flipped.length < 2 && !state.flipped.includes(action.index) && !state.matched.includes(state.deck[action.index].color)) {
                 return { ...state, flipped: [...state.flipped, action.index] };
             }
             return state;
 
         case 'CHECK_MATCH':
             const [first, second] = state.flipped;
-            if (state.deck[first].color === state.deck[second].color) {
-                const newMatched = [...state.matched, state.deck[first].color];
+            const firstCard = state.deck[first];
+            const secondCard = state.deck[second];
+
+            if (firstCard.color === secondCard.color) {
+                // Исправлено: добавляем цвет в matched
+                const newMatched = [...state.matched, firstCard.color];
                 const newScore = state.score + 1;
-                const isGameOver = newMatched.length === state.deck.length / 2;
+                const isGameOver = newMatched.length === 6; // 6 пар цветов
 
                 return {
                     ...state,
@@ -81,43 +84,41 @@ const App = () => {
     const [state, dispatch] = useReducer(gameReducer, initialState);
 
     useEffect(() => {
-        if (window.Telegram?.WebApp) {
-            const webApp = window.Telegram.WebApp;
-            console.log("Telegram WebApp detected:", webApp);
+        const initTg = () => {
+            if (window.Telegram?.WebApp) {
+                const webApp = window.Telegram.WebApp;
+                webApp.ready();
+                webApp.expand();
 
-            // Проверка данных пользователя
-            const user = webApp.initDataUnsafe?.user;
-            console.log("User data:", user);
+                // Инициализация данных пользователя
+                const user = webApp.initDataUnsafe?.user;
+                if (user) {
+                    dispatch({
+                        type: 'SET_PLAYER',
+                        player: {
+                            id: user.id,
+                            username: user.username || `user_${user.id}`,
+                            name: [user.first_name, user.last_name].filter(Boolean).join(' ')
+                        }
+                    });
+                }
 
-            // Проверка параметров запуска
-            console.log("Launch params:", webApp.initData);
-        } else {
-            console.warn("Not in Telegram WebApp. Running in browser mode.");
-        }
-    }, []);
+                // Инициализация кнопки
+                webApp.MainButton.text = 'Поделиться очками';
+                webApp.MainButton.color = '#aa1388';
+                webApp.MainButton.textColor = '#000000';
+                webApp.MainButton.show();
 
-    // Инициализация Telegram WebApp
-    useEffect(() => {
-        if (window.Telegram?.WebApp) {
-            const webApp = window.Telegram.WebApp;
-            const user = webApp.initDataUnsafe?.user;
-
-            if (user) {
-                dispatch({
-                    type: 'SET_PLAYER',
-                    player: {
-                        id: user.id,
-                        username: user.username || `user_${user.id}`,
-                        name: [user.first_name, user.last_name].filter(Boolean).join(' ')
-                    }
+                webApp.MainButton.onClick(() => {
+                    const score = localStorage.getItem('memory-game-score') || 0;
+                    const user = webApp.initDataUnsafe?.user;
+                    const username = user?.username ? `@${user.username}` : 'Я';
+                    webApp.showSharePopup(`${username} набрал ${score} очков в Memory Game!`);
                 });
-
-                localStorage.setItem('tgPlayer', JSON.stringify({
-                    id: user.id,
-                    username: user.username || `user_${user.id}`
-                }));
             }
-        }
+        };
+
+        initTg();
     }, []);
 
     // Проверка совпадений
@@ -173,10 +174,17 @@ const App = () => {
                 {state.deck.map((card, index) => (
                     <div
                         key={index}
-                        className={`card ${state.flipped.includes(index) || state.matched.includes(card.color) ? 'flipped show' : ''}`}
+                        className={`card ${
+                            state.flipped.includes(index) || state.matched.includes(card.color)
+                                ? 'flipped show'
+                                : ''
+                        }`}
                         style={{ '--card-color': card.color }}
                         onClick={() => handleCardClick(index)}
-                    />
+                    >
+                        {/* Добавьте любой контент для лицевой стороны */}
+                        <div className="card-front">?</div>
+                    </div>
                 ))}
             </div>
 

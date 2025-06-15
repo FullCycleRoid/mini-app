@@ -3,17 +3,16 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.jsx';
 
-// Инициализация Telegram WebApp
+
 const initTelegramWebApp = () => {
+    console.log(window.Telegram.WebApp, "window.Telegram.WebApp window.Telegram.WebApp 123")
     if (window.Telegram?.WebApp) {
         try {
             const webApp = window.Telegram.WebApp;
 
-            // Инициализация
             webApp.ready();
             webApp.expand();
 
-            // Настройка главной кнопки
             webApp.MainButton.text = 'Поделиться очками';
             webApp.MainButton.color = '#aa1388';
             webApp.MainButton.textColor = '#000000';
