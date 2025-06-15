@@ -28,7 +28,7 @@ const initTelegramWebApp = () => {
             });
 
             // Цвет заголовка
-            webApp.setHeaderColor('#54d923');
+            webApp.setHeaderColor('rgba(201,0,255,0.89)');
 
             console.log('Telegram WebApp инициализирован');
             return true;
