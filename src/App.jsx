@@ -90,6 +90,8 @@ const App = () => {
                 webApp.ready();
                 webApp.expand();
 
+                console.log(webApp, "webApp webApp 777")
+                console.log(webApp.initDataUnsafe, " webApp.initDataUnsafe  webApp.initDataUnsafe 777")
                 // Инициализация данных пользователя
                 const user = webApp.initDataUnsafe?.user;
                 if (user) {
@@ -183,7 +185,7 @@ const App = () => {
                         onClick={() => handleCardClick(index)}
                     >
                         {/* Добавьте любой контент для лицевой стороны */}
-                        <div className="card-front">?</div>
+                        <div className="card-front"></div>
                     </div>
                 ))}
             </div>
